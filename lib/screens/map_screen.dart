@@ -1,17 +1,14 @@
-
 import 'package:flutter/material.dart';
 
-
-
-class GuestHomeScreen extends StatelessWidget {
+class MapScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Guest Home'),
+        title: Text('Map'),
       ),
       body: Center(
-        child: Text('Welcome, ${'Guest'}!'),
+        child: Text('Map will be displayed here'),
       ),
     );
   }
