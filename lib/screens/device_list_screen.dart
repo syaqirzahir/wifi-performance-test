@@ -36,8 +36,15 @@ class _DeviceListScreenState extends State<DeviceListScreen> {
                   itemBuilder: (context, index) {
                     final host = _hosts[index];
                     return ListTile(
-                      title: Text(host.internetAddress.address),
-                      subtitle: Text(host.pingTime?.toString() ?? 'N/A'),
+                      title: Text('IP: ${host.internetAddress.address}'),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('MAC Address: ${_getMacAddress(host)}'),
+                          Text('Device Name: ${_getHostName(host)}'),
+                          Text('Ping Time: ${host.pingTime?.toString() ?? 'N/A'}'),
+                        ],
+                      ),
                     );
                   },
                 ),
@@ -50,6 +57,16 @@ class _DeviceListScreenState extends State<DeviceListScreen> {
         ),
       ),
     );
+  }
+
+  String _getMacAddress(Host host) {
+    // Add logic here to retrieve MAC address
+    return 'Unknown';
+  }
+
+  String _getHostName(Host host) {
+    // Add logic here to retrieve host name
+    return 'Unknown';
   }
 
   Future<void> _scanForDevices() async {
