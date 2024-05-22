@@ -1,57 +1,24 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:untitled2/widgets//iperf3_client.dart'; // Import the Iperf3Client class
+import 'package:flutter/services.dart';
 
-class NetworkPerformanceTestScreen extends StatefulWidget {
+class Iperf3TestScreen extends StatefulWidget {
   @override
-  _NetworkPerformanceTestScreenState createState() =>
-      _NetworkPerformanceTestScreenState();
+  _Iperf3TestScreenState createState() => _Iperf3TestScreenState();
 }
 
-class _NetworkPerformanceTestScreenState
-    extends State<NetworkPerformanceTestScreen> {
-  String testResult = '';
-  String iperfVersion = '';
+class _Iperf3TestScreenState extends State<Iperf3TestScreen> {
+  static const platform = MethodChannel('iperf3');
+  String _output = 'Output will be shown here';
 
-  @override
-  void initState() {
-    super.initState();
-    // Fetch and display iperf version when the screen is initialized
-    fetchIperfVersion();
-  }
-
-  Future<void> fetchIperfVersion() async {
+  Future<void> _runIperf3() async {
     try {
-      String version = await IperfVersionChecker.getVersion();
+      final output = await platform.invokeMethod('executeIperf3');
       setState(() {
-        iperfVersion = version;
+        _output = output;
       });
-    } catch (e) {
+    } on PlatformException catch (e) {
       setState(() {
-        iperfVersion = 'Error: $e';
-      });
-    }
-  }
-
-  Future<void> performNetworkTest() async {
-    try {
-      Map<String, dynamic> result = await Iperf3Client.runIperf3Test();
-      if (result != null && result.containsKey('bandwidth')) {
-        // Format the test result
-        double bandwidth = result['bandwidth'];
-        String formattedResult =
-            'Interval           Transfer     Bitrate\n   0.00-0.00  sec   ${bandwidth.toStringAsFixed(2)} MBytes  ${bandwidth.toStringAsFixed(2)} bits/sec';
-        setState(() {
-          testResult = formattedResult;
-        });
-      } else {
-        setState(() {
-          testResult = 'Test failed!';
-        });
-      }
-    } catch (e) {
-      setState(() {
-        testResult = 'Error: $e';
+        _output = "Failed to execute iperf3: '${e.message}'.";
       });
     }
   }
@@ -60,22 +27,18 @@ class _NetworkPerformanceTestScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Network Performance Test'),
+        title: Text('Iperf3 Test'),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [
+          children: <Widget>[
             ElevatedButton(
-              onPressed: performNetworkTest,
-              child: Text('Start Test'),
+              onPressed: _runIperf3,
+              child: Text('Run Iperf3'),
             ),
             SizedBox(height: 20),
-            Text(
-              testResult,
-              style: TextStyle(fontSize: 18),
-              textAlign: TextAlign.center,
-            ),
+            Text(_output),
           ],
         ),
       ),

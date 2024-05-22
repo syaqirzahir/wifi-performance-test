@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:io';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:untitled2/widgets/database_helper.dart';
 import 'package:untitled2/screens/user_data.dart';
 import 'package:dbcrypt/dbcrypt.dart'; // Import dbcrypt package
@@ -64,13 +62,7 @@ class _LoginScreenState extends State<LoginScreen> {
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () async {
-                  // Request storage permission
-                  if (Platform.isAndroid) {
-                    var status = await Permission.storage.request();
-                    if (status.isDenied) {
-                      return;
-                    }
-                  }
+                  print('Login button pressed'); // Add this print statement
                   String email = emailController.text;
                   String password = passwordController.text;
 
@@ -118,6 +110,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 },
                 child: Text('Login'),
               ),
+
               SizedBox(height: 20),
               TextButton(
                 onPressed: () {

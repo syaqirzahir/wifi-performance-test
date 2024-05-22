@@ -243,7 +243,7 @@ class HomeScreen extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => NetworkPerformanceTestScreen(),
+                    builder: (context) => Iperf3TestScreen(),
                   ),
                 );
               },

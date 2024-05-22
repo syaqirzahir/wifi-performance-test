@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter/services.dart'; // Import for MethodChannel
 import 'guest_home_screen.dart';
 import 'login_screen.dart';
 import 'user_home_screen.dart';
@@ -11,10 +12,15 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
+  static const platform = MethodChannel('iperf3'); // Define the MethodChannel
+
   @override
   Widget build(BuildContext context) {
-    // Initialize location services when the app starts
-    initLocationServices(context);
+    // Initialize location and storage services when the app starts
+    initPermissions(context);
+
+    // Call the method to copy the correct ABI for iperf3
+    _copyIperf3Binary();
 
     return MaterialApp(
       title: 'Speed Test App',
@@ -24,7 +30,8 @@ class MyApp extends StatelessWidget {
         '/guest_home': (context) => GuestHomeScreen(),
         '/user_home': (context) => UserHomeScreen(),
         '/register_screen': (context) => RegisterScreen(),
-        '/edit_profile': (context) => EditProfileScreen(), // Add the route for EditProfileScreen
+        '/edit_profile': (context) => EditProfileScreen(),
+        // Add the route for EditProfileScreen
       },
       theme: ThemeData(
         primaryColor: Colors.redAccent, // Define primary color here
@@ -32,27 +39,28 @@ class MyApp extends StatelessWidget {
     );
   }
 
-  Future<void> initLocationServices(BuildContext context) async {
+  Future<void> initPermissions(BuildContext context) async {
     // Request locationWhenInUse permission
-    var status = await Permission.locationWhenInUse.status;
-    if (!status.isGranted) {
+    var locationStatus = await Permission.locationWhenInUse.status;
+    if (!locationStatus.isGranted) {
       var status = await Permission.locationWhenInUse.request();
       if (status.isGranted) {
-        // Check for locationAlways permission
-        var alwaysStatus = await Permission.locationAlways.status;
-        if (!alwaysStatus.isGranted) {
-          var alwaysStatus = await Permission.locationAlways.request();
-          if (alwaysStatus.isGranted) {
-            // Do something
-          } else {
-            // Handle when locationAlways permission is denied
-          }
-        } else {
-          // locationAlways permission was previously granted
-          // Do something
-        }
-      } else {
-        // Handle when locationWhenInUse permission is denied
+        // Request storage permission if locationWhenInUse permission is granted
+        await _requestStoragePermission();
+      }
+    } else {
+      // locationWhenInUse permission was previously granted
+      // Request storage permission
+      await _requestStoragePermission();
+    }
+  }
+
+  Future<void> _requestStoragePermission() async {
+    var storageStatus = await Permission.storage.status;
+    if (!storageStatus.isGranted) {
+      var status = await Permission.storage.request();
+      if (!status.isGranted) {
+        // Handle when storage permission is denied
       }
 
       // Check if permission is permanently denied
@@ -64,20 +72,16 @@ class MyApp extends StatelessWidget {
         }
       }
     } else {
-      // locationWhenInUse permission was previously granted
-      // Check if locationAlways permission is needed
-      var alwaysStatus = await Permission.locationAlways.status;
-      if (!alwaysStatus.isGranted) {
-        var alwaysStatus = await Permission.locationAlways.request();
-        if (alwaysStatus.isGranted) {
-          // Do something
-        } else {
-          // Handle when locationAlways permission is denied
-        }
-      } else {
-        // locationAlways permission was previously granted
-        // Do something
-      }
+      // storage permission was previously granted
+      // Do something
+    }
+  }
+
+  Future<void> _copyIperf3Binary() async {
+    try {
+      await platform.invokeMethod('copyIperf3Binary');
+    } on PlatformException catch (e) {
+      print("Failed to copy iperf3 binary: '${e.message}'.");
     }
   }
 }

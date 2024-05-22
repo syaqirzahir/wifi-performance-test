@@ -188,7 +188,7 @@ class HomeScreen extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (context) =>
-                          NetworkPerformanceTestScreen(),
+                          Iperf3TestScreen(),
                     ),
                   );
                 },
