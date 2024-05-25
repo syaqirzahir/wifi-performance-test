@@ -93,6 +93,15 @@ class MainActivity : FlutterActivity() {
             inputStream.close()
             outputStream.close()
 
+            // Make the file executable using shell command
+            try {
+                Runtime.getRuntime().exec("chmod 755 ${outFile.absolutePath}").waitFor()
+                Log.d(TAG, "Made file executable: ${outFile.absolutePath}")
+            } catch (e: Exception) {
+                Log.e(TAG, "Error setting executable permission", e)
+                return false
+            }
+
             // Make the file executable
             val executableSet = outFile.setExecutable(true)
             if (executableSet) {
