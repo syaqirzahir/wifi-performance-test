@@ -5,11 +5,18 @@
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"/>
+
+
     <application
         android:label="untitled2"
         android:icon="@mipmap/ic_launcher"
         android:extractNativeLibs="true"
         android:enableOnBackInvokedCallback="true">
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyC0TGzCm4YMUEAwYR5BKikr3HZVzTAiFs0"/> <!-- Add your actual API key here -->
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -20,8 +27,7 @@
             android:windowSoftInputMode="adjustResize">
             <meta-data
                 android:name="io.flutter.embedding.android.NormalTheme"
-                android:resource="@style/NormalTheme"
-                />
+                android:resource="@style/NormalTheme"/>
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
