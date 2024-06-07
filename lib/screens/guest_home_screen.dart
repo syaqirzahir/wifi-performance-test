@@ -209,7 +209,7 @@ class HomeScreen extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => TestResultsPage(),
+                      builder: (context) => WifiListScreen(),
                     ),
                   );
                 },
