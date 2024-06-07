@@ -6,9 +6,17 @@ import 'login_screen.dart';
 import 'user_home_screen.dart';
 import 'register_screen.dart';
 import 'edit_profile_screen.dart'; // Import the EditProfileScreen
+import 'welcome.dart';
+import 'package:provider/provider.dart'; // Import provider package
+import 'user_provider.dart'; // Import UserProvider
 
 void main() {
-  runApp(MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => UserProvider(),
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -24,8 +32,9 @@ class MyApp extends StatelessWidget {
 
     return MaterialApp(
       title: 'Speed Test App',
-      initialRoute: '/login',
+      initialRoute: '/welcome',
       routes: {
+        '/welcome': (context) => WelcomePage(),
         '/login': (context) => LoginScreen(),
         '/guest_home': (context) => GuestHomeScreen(),
         '/user_home': (context) => UserHomeScreen(),
