@@ -46,7 +46,7 @@ class MainActivity : FlutterActivity() {
     }
 
     private fun executeIperf3TCP(): String {
-        val processBuilder = ProcessBuilder("iperf3", "-c", "192.168.0.110")
+        val processBuilder = ProcessBuilder("iperf3", "-c", "192.168.0.110", "-t", "5")
         processBuilder.redirectErrorStream(true)
         try {
             val process = processBuilder.start()
@@ -66,7 +66,7 @@ class MainActivity : FlutterActivity() {
     }
 
     private fun executeIperf3UDP(): String {
-        val processBuilder = ProcessBuilder("iperf3", "-c", "192.168.0.110", "-u")
+        val processBuilder = ProcessBuilder("iperf3", "-c", "192.168.0.110", "-t", "5", "-u")
         processBuilder.redirectErrorStream(true)
         try {
             val process = processBuilder.start()

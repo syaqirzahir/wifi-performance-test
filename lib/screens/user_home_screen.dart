@@ -11,7 +11,6 @@ import 'package:untitled2/widgets/Network_Test_Entry.dart';
 import 'map_screen.dart';
 import 'device_list_screen.dart';
 
-
 class UserHomeScreen extends StatefulWidget {
   @override
   _UserHomeScreenState createState() => _UserHomeScreenState();
@@ -50,8 +49,7 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
     await placemarkFromCoordinates(position.latitude, position.longitude);
 
     setState(() {
-      _userLocation =
-      '${placemarks.first.locality}, ${placemarks.first.country}';
+      _userLocation = '${placemarks.first.locality}, ${placemarks.first.country}';
     });
   }
 
@@ -65,7 +63,6 @@ class HomeScreen extends StatelessWidget {
   final String userLocation;
   final DatabaseHelper dbHelper = DatabaseHelper();
 
-
   HomeScreen({required this.userLocation});
 
   @override
@@ -75,91 +72,73 @@ class HomeScreen extends StatelessWidget {
         title: Text(
           'Home',
           style: TextStyle(
-            color: Colors.black, // Set the app bar title color
+            color: Colors.white,
           ),
         ),
-        backgroundColor: Colors.greenAccent, // Set the app bar background color
+        backgroundColor: Colors.teal,
+        elevation: 0,
       ),
       drawer: Drawer(
         child: SingleChildScrollView(
           child: Container(
-            constraints: BoxConstraints(maxWidth: 250),
-            // Set maximum width for the Drawer
+            constraints: BoxConstraints(maxWidth: 300),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Blue box with user information
-                LayoutBuilder(
-                  builder: (context, constraints) {
-                    return PreferredSize(
-                      preferredSize: Size.fromHeight(
-                          constraints.maxHeight), // Set dynamic preferred size
-                      child: Container(
-                        color: Colors.green,
-                        width:
-                        MediaQuery.of(context).size.width, // Match the width of the drawer
-                        padding: EdgeInsets.fromLTRB(
-                            16, 30, 16, 20), // Add top padding
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'User Information',
-                              style: TextStyle(
-                                  color: Colors.white, fontSize: 18),
-                            ),
-                            SizedBox(height: 5),
-                            Text(
-                              'Email: ${UserData.email}',
-                              style: TextStyle(color: Colors.white),
-                            ),
-                            SizedBox(height: 5),
-                            Text(
-                              'Location: $userLocation',
-                              style: TextStyle(color: Colors.white),
-                            ),
-                          ],
-                        ),
+                Container(
+                  color: Colors.teal,
+                  width: double.infinity,
+                  padding: EdgeInsets.fromLTRB(16, 40, 16, 20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'User Information',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold),
                       ),
-                    );
+                      SizedBox(height: 5),
+                      Text(
+                        'Email: ${UserData.email}',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      SizedBox(height: 5),
+                      Text(
+                        'Location: $userLocation',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ],
+                  ),
+                ),
+                ListTile(
+                  leading: Icon(Icons.edit, color: Colors.teal),
+                  title: Text(
+                    'Edit Profile',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  onTap: () {
+                    Navigator.pushNamed(context, '/edit_profile');
                   },
                 ),
-
-                // Edit Profile item
-                Container(
-                  decoration: BoxDecoration(
-                    border:
-                    Border.all(color: Colors.black), // Add border decoration
-                  ),
-                  child: ListTile(
-                    title: Text(
-                      'Edit Profile',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontWeight:
-                        FontWeight.bold, // Set font weight to bold
-                      ),
-                    ),
-                    onTap: () {
-                      Navigator.pushNamed(context, '/edit_profile');
-                    },
-                  ),
-                ),
-                // Network Performance Test History section
-                FutureBuilder<List<NetworkTestEntry>>(
-                  future: dbHelper.getTestHistory(), // Fetch test history from the database
+                Divider(color: Colors.teal),
+                FutureBuilder<List<Map<String, dynamic>>>(
+                  future: dbHelper.fetchTestResults(), // Assuming this fetches test entries from the database
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      // Display loading indicator while fetching data
-                      return CircularProgressIndicator();
+                      return Center(child: CircularProgressIndicator());
                     } else if (snapshot.hasError) {
-                      // Handle error
                       return Text('Error: ${snapshot.error}');
                     } else {
-                      // Display test history entries
+                      final List<Map<String, dynamic>> testResults = snapshot.data!;
+                      final lastTwoTests = testResults.length >= 2 ? testResults.sublist(testResults.length - 2) : testResults;
+
                       return Column(
                         children: [
-                          // Section header
                           ListTile(
                             title: Text(
                               'Network Performance Test History',
@@ -169,166 +148,231 @@ class HomeScreen extends StatelessWidget {
                               ),
                             ),
                           ),
-                          // List of test history entries
                           ListView.builder(
                             shrinkWrap: true,
-                            itemCount: snapshot.data!.length,
+                            physics: NeverScrollableScrollPhysics(),
+                            itemCount: lastTwoTests.length,
                             itemBuilder: (context, index) {
-                              final testEntry = snapshot.data![index];
-                              return ListTile(
-                                title: Text(
-                                  'Test ${index + 1}: ${testEntry.date}',
-                                  style: TextStyle(color: Colors.black),
+                              final testResult = lastTwoTests[index];
+                              return Card(
+                                margin: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                                child: ListTile(
+                                  title: Text(
+                                    'Test ${testResults.length - 1 - index}',
+                                    style: TextStyle(color: Colors.black),
+                                  ),
+                                  subtitle: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text('Test Type: ${testResult['test_type'] ?? 'N/A'}',
+                                          style: TextStyle(color: Colors.grey)),
+                                      Text('Timestamp: ${testResult['test_timestamp'] ?? 'N/A'}',
+                                          style: TextStyle(color: Colors.grey)),
+                                      if (testResult['transfer'] != null)
+                                        Text('Transfer: ${testResult['transfer']} MBytes',
+                                            style: TextStyle(color: Colors.grey)),
+                                      if (testResult['jitter'] != null)
+                                        Text('Jitter: ${testResult['jitter']} ms',
+                                            style: TextStyle(color: Colors.grey)),
+                                    ],
+                                  ),
+                                  onTap: () {
+                                    // Handle onTap event
+                                  },
                                 ),
-                                subtitle: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text('Duration: ${testEntry.duration}', style: TextStyle(color: Colors.grey)),
-                                    Text('Throughput: ${testEntry.throughput}', style: TextStyle(color: Colors.grey)),
-                                    Text('Packet Loss: ${testEntry.packetLoss}', style: TextStyle(color: Colors.grey)),
-                                    Text('Jitter: ${testEntry.jitter}', style: TextStyle(color: Colors.grey)),
-                                    Text('Latency: ${testEntry.latency}', style: TextStyle(color: Colors.grey)),
-                                  ],
-                                ),
-                                onTap: () {
-                                  // Handle onTap event
-                                },
                               );
                             },
                           ),
-
                         ],
                       );
                     }
                   },
                 ),
-                // Log out item
-                Container(
-                  decoration: BoxDecoration(
-                    border:
-                    Border.all(color: Colors.black), // Add border decoration
-                  ),
-                  child: ListTile(
-                    title: Text(
-                      'Log Out',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                      ),
+                Divider(color: Colors.teal),
+                ListTile(
+                  leading: Icon(Icons.logout, color: Colors.teal),
+                  title: Text(
+                    'Log Out',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
                     ),
-                    onTap: () {
-                      _logOut(context);
-                    },
                   ),
+                  onTap: () {
+                    _logOut(context);
+                  },
                 ),
               ],
             ),
           ),
         ),
       ),
-      body: Column(
-        children: <Widget>[
-          // Button to conduct network performance test
-          Container(
-            margin: EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.black),
-            ),
-            child: ListTile(
-              title: Text(
-                'Conduct Network Performance Test',
-                style: TextStyle(color: Colors.black),
-              ),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => Iperf3TestScreen(),
+      body: SingleChildScrollView(
+        child: Container(
+          color: Colors.grey[100],
+          padding: EdgeInsets.all(16),
+          child: Column(
+            children: [
+              GridView.count(
+                crossAxisCount: 2,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+                shrinkWrap: true, // Added to make GridView take the minimum height needed
+                physics: NeverScrollableScrollPhysics(), // Disable GridView's own scrolling
+                children: <Widget>[
+                  _buildHomeScreenButton(
+                    context,
+                    'Wi-Fi Performance Test',
+                    Icons.speed,
+                    Colors.blue,
+                        () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => Iperf3TestScreen(),
+                      ),
+                    ),
                   ),
-                );
-              },
-            ),
-          ),
-          // Button to navigate to the Wi-Fi list screen
-          Container(
-            margin: EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.black),
-            ),
-            child: ListTile(
-              title: Text(
-                'View Wi-Fi Networks',
-                style: TextStyle(color: Colors.black),
-              ),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => WifiListScreen(),
+                  _buildHomeScreenButton(
+                    context,
+                    'View Wi-Fi Networks',
+                    Icons.wifi,
+                    Colors.orange,
+                        () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => TestResultsPage(),
+                      ),
+                    ),
                   ),
-                );
-              },
-            ),
-          ),
-          // Button to navigate to the Map screen
-          Container(
-            margin: EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.black),
-            ),
-            child: ListTile(
-              title: Text(
-                'Map',
-                style: TextStyle(color: Colors.black),
-              ),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => MapScreen(), // Replace MapScreen with your map screen widget
+                  _buildHomeScreenButton(
+                    context,
+                    'Indoor Wi-Fi Optimization',
+                    Icons.map,
+                    Colors.green,
+                        () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => WiFiTestForm(),
+                      ),
+                    ),
                   ),
-                );
-              },
-            ),
-          ),
-          // Button to navigate to the Device List screen
-          Container(
-            margin: EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.black),
-            ),
-            child: ListTile(
-              title: Text(
-                'List of Devices Connected',
-                style: TextStyle(color: Colors.black),
-              ),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => DeviceListScreen(), // Replace DeviceListScreen with your device list screen widget
+                  _buildHomeScreenButton(
+                    context,
+                    'List of Devices Connected',
+                    Icons.devices,
+                    Colors.red,
+                        () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => DeviceListScreen(),
+                      ),
+                    ),
                   ),
-                );
-              },
-            ),
+                ],
+              ),
+              SizedBox(height: 20),
+              _buildInstructionsSection(),
+            ],
           ),
-        ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHomeScreenButton(
+      BuildContext context,
+      String title,
+      IconData icon,
+      Color iconColor,
+      VoidCallback onTap,
+      ) {
+    return Card(
+      margin: EdgeInsets.symmetric(vertical: 10),
+      elevation: 3,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15),
+      ),
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, color: iconColor, size: 50),
+              SizedBox(height: 10),
+              Text(
+                title,
+                style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInstructionsSection() {
+    return Card(
+      margin: EdgeInsets.all(10),
+      elevation: 3,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15),
+      ),
+      child: const Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'How to Use This App',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+            ),
+            SizedBox(height: 10),
+            Text(
+              '1. Wi-Fi Performance Test: Run a zdfhbserhaerhaerhaehaerhaethjksbgbwaejkgbuiawbegiujbawuigbuiawebguibawuigbuia'
+                  'wbguibawuigbuiawbguijbawuijrgbiujawebrgiubawiuejrgbiuawbgiubaewijgbijkerbgtest to check the speed and quality of your Wi-Fi.',
+              style: TextStyle(fontSize: 14),
+            ),
+            SizedBox(height: 10),
+            Text(
+              '2. View Wi-Fi Networks: See available Wi-Fi networks and their details. zdfhbserhaerhaerhaehaerhaethjksbgbwaejkgbuiawbegiujbawuigbuiawebguibawuigbuia'
+                  'wbguibawuigbuiawbguijbawuijrgbiujawebrgiubawiuejrgbiuawbgiubaewijgbijkerbgtest',
+              style: TextStyle(fontSize: 14),
+            ),
+            SizedBox(height: 10),
+            Text(
+              '3. Indoor Wi-Fi Optimization: View a map of your Wi-Fi coverage to optimize your setup.',
+              style: TextStyle(fontSize: 14),
+            ),
+            SizedBox(height: 10),
+            Text(
+              '4. List of Devices Connected: View all devices currently connected to your Wi-Fi.',
+              style: TextStyle(fontSize: 14),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   void _logOut(BuildContext context) async {
-    // Record logout process in the logs database
     await dbHelper.addLog(
       'User Logout',
       'User ${UserData.email} logged out from the app',
     );
 
-    // Navigate to the login screen
     Navigator.pushNamedAndRemoveUntil(
       context,
       '/login',
-          (route) => false, // Remove all existing routes from the navigator
+          (route) => false,
     );
   }
 }

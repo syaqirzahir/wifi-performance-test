@@ -1,133 +1,142 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:untitled2/widgets/database_helper.dart';
 import 'login_screen.dart'; // Import the LoginScreen
+import 'welcome.dart'; // Ensure you have this screen implemented
 
 class RegisterScreen extends StatelessWidget {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController retypePasswordController = TextEditingController(); // Add retype password controller
+  final TextEditingController retypePasswordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Register'),
-    leading: IconButton(
-    icon: Icon(Icons.arrow_back),
-      onPressed: () {
-        // Navigate back to the login screen
-        Navigator.pushReplacement(
+        title: Text('Sign Up', style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.lightBlueAccent,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => LoginScreen()),
-        );
-      },
-    ),
+            MaterialPageRoute(builder: (context) => WelcomePage()),
+          ),
+        ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextField(
-              controller: nameController,
-              decoration: InputDecoration(
-                labelText: 'Name',
-              ),
+      body: Container(
+        padding: EdgeInsets.all(20.0),
+        decoration: BoxDecoration(
+          color: Colors.white, // Solid white for a cleaner look
+        ),
+        child: Center(
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Text(
+                  'Register and Create an Account',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.lightBlueAccent,
+                  ),
+                ),
+                SizedBox(height: 20),
+                TextField(
+                  controller: nameController,
+                  decoration: InputDecoration(
+                    labelText: 'Username',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12.0),
+                    ),
+                    filled: true,
+                    fillColor: Colors.grey[200],
+                  ),
+                ),
+                SizedBox(height: 20),
+                TextField(
+                  controller: emailController,
+                  decoration: InputDecoration(
+                    labelText: 'E-mail',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12.0),
+                    ),
+                    filled: true,
+                    fillColor: Colors.grey[200],
+                  ),
+                  keyboardType: TextInputType.emailAddress,
+                ),
+                SizedBox(height: 20),
+                TextField(
+                  controller: passwordController,
+                  obscureText: true,
+                  decoration: InputDecoration(
+                    labelText: 'Password',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12.0),
+                    ),
+                    filled: true,
+                    fillColor: Colors.grey[200],
+                  ),
+                ),
+                SizedBox(height: 20),
+                TextField(
+                  controller: retypePasswordController,
+                  obscureText: true,
+                  decoration: InputDecoration(
+                    labelText: 'Retype Password',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12.0),
+                    ),
+                    filled: true,
+                    fillColor: Colors.grey[200],
+                  ),
+                ),
+                SizedBox(height: 30),
+                ElevatedButton(
+                  onPressed: () => _registerUser(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.lightBlueAccent,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18.0),
+                    ),
+                    padding: EdgeInsets.symmetric(vertical: 12, horizontal: 80),
+                    textStyle: TextStyle(fontSize: 16),
+                  ),
+                  child: Text('Sign Up', style: TextStyle(color: Colors.white)),
+                ),
+                SizedBox(height: 15),
+                RichText(
+                  text: TextSpan(
+                    style: TextStyle(color: Colors.black, fontSize: 16),
+                    children: <TextSpan>[
+                      TextSpan(text: ' already have an account? '),
+                      TextSpan(
+                          text: 'Login',
+                          style: TextStyle(color: Colors.lightBlueAccent  , fontWeight: FontWeight.bold),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () {
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(builder: (context) => LoginScreen()),
+                              );
+                            }
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            SizedBox(height: 20),
-            TextField(
-              controller: emailController,
-              decoration: InputDecoration(
-                labelText: 'Email',
-              ),
-              keyboardType: TextInputType.emailAddress, // Set keyboard type to email
-            ),
-            SizedBox(height: 20),
-            TextField(
-              controller: passwordController,
-              obscureText: true,
-              decoration: InputDecoration(
-                labelText: 'Password',
-              ),
-            ),
-            SizedBox(height: 20),
-            TextField(
-              controller: retypePasswordController, // Use retype password controller
-              obscureText: true,
-              decoration: InputDecoration(
-                labelText: 'Retype Password', // Label for retype password field
-              ),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () async {
-                String name = nameController.text.trim();
-                String email = emailController.text.trim();
-                String password = passwordController.text;
-                String retypePassword = retypePasswordController.text;
-
-                // Regular expression to validate email format
-                RegExp emailRegExp = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-
-                // Check if all fields are filled and email format is correct
-                if (name.isNotEmpty &&
-                    email.isNotEmpty &&
-                    password.isNotEmpty &&
-                    retypePassword.isNotEmpty &&
-                    emailRegExp.hasMatch(email)) {
-                  // Check if password and retype password match
-                  if (password == retypePassword) {
-                    try {
-                      final dbHelper = DatabaseHelper();
-                      // Check if email already exists in the database
-                      bool emailExists = await dbHelper.checkEmailExists(email);
-                      if (emailExists) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Email already in use')),
-                        );
-                        // Clear the email field
-                        emailController.clear();
-                      } else {
-                        // Register the user if email is not in use
-                        await dbHelper.addUser(name, email, password);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Registration successful')),
-                        );
-                        // Delay navigation back to the login screen
-                        await Future.delayed(Duration(seconds: 2));
-                        // Navigate to the login screen and replace the current route
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (context) => LoginScreen()),
-                        );
-                      }
-                    } catch (e) {
-                      print('Error registering user: $e'); // Log error message
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Failed to register user')),
-                      );
-                    }
-                  } else {
-                    // Clear password fields if passwords do not match
-                    passwordController.clear();
-                    retypePasswordController.clear();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Passwords do not match')),
-                    );
-                  }
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Please fill valid email')),
-                  );
-                }
-              },
-              child: Text('Register'),
-            ),
-          ],
+          ),
         ),
       ),
     );
+  }
+
+  void _registerUser(BuildContext context) {
+    // Insert the registration logic here
+    // Example: Validate inputs and use the database helper to register the user
+    print("Register button pressed");
   }
 }

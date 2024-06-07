@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:untitled2/widgets/database_helper.dart';
 import 'package:untitled2/screens/user_data.dart';
+import 'package:untitled2/screens/user_provider.dart';
 import 'package:dbcrypt/dbcrypt.dart'; // Import dbcrypt package
 
 class LoginScreen extends StatefulWidget {
@@ -17,7 +19,9 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(''),
+        title: Text('Login'),
+        centerTitle: true,
+        backgroundColor: Colors.lightBlueAccent,
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -26,22 +30,19 @@ class _LoginScreenState extends State<LoginScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Center(
-                child: Column(
-                  children: [
-                    Image.asset(
-                      'assets/university_logo.png',
-                      height: 150,
-                    ),
-                    SizedBox(height: 20),
-                    Text(
-                      'Wifi Performance Test App',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontFamily: 'Roboto',
-                      ),
-                    ),
-                  ],
+              SizedBox(height: 20),
+              Image.asset(
+                'assets/university_logo.png',
+                height: 150,
+              ),
+              SizedBox(height: 20),
+              Text(
+                'WiFi Performance Test App',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 24,
+                  fontFamily: 'Roboto',
+                  fontWeight: FontWeight.bold,
                 ),
               ),
               SizedBox(height: 20),
@@ -49,6 +50,16 @@ class _LoginScreenState extends State<LoginScreen> {
                 controller: emailController,
                 decoration: InputDecoration(
                   labelText: 'Email',
+                  labelStyle: TextStyle(color: Colors.lightBlueAccent),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12.0),
+                    borderSide: BorderSide(color: Colors.lightBlueAccent),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12.0),
+                    borderSide: BorderSide(color: Colors.lightBlueAccent),
+                  ),
+                  prefixIcon: Icon(Icons.email, color: Colors.lightBlueAccent),
                 ),
               ),
               SizedBox(height: 20),
@@ -57,19 +68,27 @@ class _LoginScreenState extends State<LoginScreen> {
                 obscureText: true,
                 decoration: InputDecoration(
                   labelText: 'Password',
+                  labelStyle: TextStyle(color: Colors.lightBlueAccent),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12.0),
+                    borderSide: BorderSide(color: Colors.lightBlueAccent),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12.0),
+                    borderSide: BorderSide(color: Colors.lightBlueAccent),
+                  ),
+                  prefixIcon: Icon(Icons.lock, color: Colors.lightBlueAccent),
                 ),
               ),
-              SizedBox(height: 20),
+              SizedBox(height: 30),
               ElevatedButton(
                 onPressed: () async {
-                  print('Login button pressed'); // Add this print statement
+                  print('Login button pressed');
                   String email = emailController.text;
                   String password = passwordController.text;
 
-                  // Retrieve hashed password from the database based on the provided email
                   String? hashedPassword = await dbHelper.getPassword(email);
 
-                  // Verify the password using DBCrypt
                   bool isAuthenticated = false;
                   if (hashedPassword != null) {
                     DBCrypt bcrypt = DBCrypt();
@@ -78,20 +97,18 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   if (isAuthenticated) {
                     String? userName = await dbHelper.getUserName(email);
+                    int? userId = await dbHelper.getUserId(email);
 
-                    if (userName != null) {
+                    if (userName != null && userId != null) {
                       UserData.updateName(userName);
                       UserData.updateEmail(email);
+
+                      Provider.of<UserProvider>(context, listen: false).setUserId(userId);
                     }
-                    // Add login log
-                    await addLoginLog(
-                      'User Login',
-                      'User $email logged in to the app',
-                    );
-                    Navigator.pushReplacementNamed(
-                      context,
-                      '/user_home',
-                    );
+
+                    await addLoginLog('User Login', 'User $email logged in to the app');
+
+                    Navigator.pushReplacementNamed(context, '/user_home');
                   } else {
                     showDialog(
                       context: context,
@@ -108,54 +125,49 @@ class _LoginScreenState extends State<LoginScreen> {
                     );
                   }
                 },
-                child: Text('Login'),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 15.0),
+                  child: Text('Login', style: TextStyle(fontSize: 18)),
+                ),
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.0),
+                  ),
+                  backgroundColor: Colors.lightBlueAccent,
+                ),
               ),
-
-              SizedBox(height: 20),
+              SizedBox(height: 10),
               TextButton(
                 onPressed: () {
-                  // Add login log for guest user
-                  addLoginLog(
-                    'Guest Login',
-                    'Guest user logged in to the app',
-                  );
-                  // Continue as Guest action
-                  // For example, log in a guest account or create a guest session
-                  UserData.updateName('Guest'); // Update guest name
-                  UserData.updateEmail('guest@example.com'); // Update guest email
+                  addLoginLog('Guest Login', 'Guest user logged in to the app');
+                  UserData.updateName('Guest');
+                  UserData.updateEmail('guest@example.com');
 
-                  Navigator.pushReplacementNamed(
-                    context,
-                    '/user_home',
-                  );
+                  Navigator.pushReplacementNamed(context, '/user_home');
                 },
-                child: Text('Continue as Guest'),
+                child: Text(
+                  'Continue as Guest',
+                  style: TextStyle(color: Colors.lightBlueAccent, fontSize: 16),
+                ),
               ),
-              SizedBox(height: 20),
+              SizedBox(height: 10),
               TextButton(
                 onPressed: () {
-                  Navigator.pushReplacementNamed(
-                    context,
-                    '/register_screen',
-                  );
+                  Navigator.pushReplacementNamed(context, '/register_screen');
                 },
-                child: Text('Sign Up Now'),
+                child: Text(
+                  'Sign Up Now',
+                  style: TextStyle(color: Colors.lightBlueAccent, fontSize: 16),
+                ),
               ),
             ],
           ),
         ),
       ),
-
-    );
-
-    }
-
-  Future<void> addLoginLog(String eventType, String eventDescription) async {
-    // Record login process in the logs database
-    await dbHelper.addLog(
-      eventType,
-      eventDescription,
     );
   }
 
+  Future<void> addLoginLog(String eventType, String eventDescription) async {
+    await dbHelper.addLog(eventType, eventDescription);
+  }
 }
