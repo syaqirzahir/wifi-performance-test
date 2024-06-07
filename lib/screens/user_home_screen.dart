@@ -11,7 +11,6 @@ import 'package:untitled2/widgets/Network_Test_Entry.dart';
 import 'map_screen.dart';
 import 'device_list_screen.dart';
 
-
 class UserHomeScreen extends StatefulWidget {
   @override
   _UserHomeScreenState createState() => _UserHomeScreenState();
@@ -65,7 +64,6 @@ class HomeScreen extends StatelessWidget {
   final String userLocation;
   final DatabaseHelper dbHelper = DatabaseHelper();
 
-
   HomeScreen({required this.userLocation});
 
   @override
@@ -78,7 +76,7 @@ class HomeScreen extends StatelessWidget {
             color: Colors.black, // Set the app bar title color
           ),
         ),
-        backgroundColor: Colors.greenAccent, // Set the app bar background color
+        backgroundColor: Colors.yellow, // Set the app bar background color
       ),
       drawer: Drawer(
         child: SingleChildScrollView(
@@ -88,16 +86,15 @@ class HomeScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Blue box with user information
+                // Yellow box with user information
                 LayoutBuilder(
                   builder: (context, constraints) {
                     return PreferredSize(
                       preferredSize: Size.fromHeight(
                           constraints.maxHeight), // Set dynamic preferred size
                       child: Container(
-                        color: Colors.green,
-                        width:
-                        MediaQuery.of(context).size.width, // Match the width of the drawer
+                        color: Colors.yellow,
+                        width: MediaQuery.of(context).size.width, // Match the width of the drawer
                         padding: EdgeInsets.fromLTRB(
                             16, 30, 16, 20), // Add top padding
                         child: Column(
@@ -106,17 +103,17 @@ class HomeScreen extends StatelessWidget {
                             Text(
                               'User Information',
                               style: TextStyle(
-                                  color: Colors.white, fontSize: 18),
+                                  color: Colors.black, fontSize: 18),
                             ),
                             SizedBox(height: 5),
                             Text(
                               'Email: ${UserData.email}',
-                              style: TextStyle(color: Colors.white),
+                              style: TextStyle(color: Colors.black),
                             ),
                             SizedBox(height: 5),
                             Text(
                               'Location: $userLocation',
-                              style: TextStyle(color: Colors.white),
+                              style: TextStyle(color: Colors.black),
                             ),
                           ],
                         ),
@@ -136,8 +133,7 @@ class HomeScreen extends StatelessWidget {
                       'Edit Profile',
                       style: TextStyle(
                         color: Colors.black,
-                        fontWeight:
-                        FontWeight.bold, // Set font weight to bold
+                        fontWeight: FontWeight.bold, // Set font weight to bold
                       ),
                     ),
                     onTap: () {
@@ -229,90 +225,122 @@ class HomeScreen extends StatelessWidget {
       body: Column(
         children: <Widget>[
           // Button to conduct network performance test
-          Container(
-            margin: EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.black),
-            ),
-            child: ListTile(
-              title: Text(
-                'Conduct Network Performance Test',
-                style: TextStyle(color: Colors.black),
-              ),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => Iperf3TestScreen(),
-                  ),
-                );
-              },
-            ),
+          _buildButton(
+            context,
+            'Network Performance Test',
+            Icons.speed,
+                () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => Iperf3TestScreen(),
+                ),
+              );
+            },
           ),
           // Button to navigate to the Wi-Fi list screen
-          Container(
-            margin: EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.black),
-            ),
-            child: ListTile(
-              title: Text(
-                'View Wi-Fi Networks',
-                style: TextStyle(color: Colors.black),
-              ),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => WifiListScreen(),
-                  ),
-                );
-              },
-            ),
+          _buildButton(
+            context,
+            'View Wi-Fi Networks',
+            Icons.wifi,
+                () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => WifiListScreen(),
+                ),
+              );
+            },
           ),
           // Button to navigate to the Map screen
-          Container(
-            margin: EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.black),
-            ),
-            child: ListTile(
-              title: Text(
-                'Map',
-                style: TextStyle(color: Colors.black),
-              ),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => MapScreen(), // Replace MapScreen with your map screen widget
-                  ),
-                );
-              },
-            ),
+          _buildButton(
+            context,
+            'Map',
+            Icons.map,
+                () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => MapScreen(),
+                ),
+              );
+            },
           ),
           // Button to navigate to the Device List screen
-          Container(
-            margin: EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.black),
-            ),
-            child: ListTile(
-              title: Text(
-                'List of Devices Connected',
-                style: TextStyle(color: Colors.black),
-              ),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => DeviceListScreen(), // Replace DeviceListScreen with your device list screen widget
-                  ),
-                );
-              },
-            ),
+          _buildButton(
+            context,
+            'List of Devices Connected',
+            Icons.devices,
+                () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => DeviceListScreen(),
+                ),
+              );
+            },
           ),
+          Expanded(
+            child: Container(
+              margin: EdgeInsets.all(20), // Add margin for spacing
+              decoration: BoxDecoration(
+                color: Colors.white, // Set background color
+                borderRadius: BorderRadius.circular(20), // Add border radius
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.5), // Set shadow color
+                    spreadRadius: 5, // Set spread radius
+                    blurRadius: 7, // Set blur radius
+                    offset: Offset(0, 3), // Set shadow offset
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20), // Clip content to rounded border
+                child: MapScreen(), // Display the MapScreen widget
+              ),
+            ),
+          )
+
         ],
+      ),
+    );
+  }
+
+  Widget _buildButton(
+      BuildContext context,
+      String label,
+      IconData icon,
+      VoidCallback onPressed,
+      ) {
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.yellow,
+          foregroundColor: Colors.black,
+          padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          elevation: 5,
+          shadowColor: Colors.grey.withOpacity(0.5),
+        ),
+        onPressed: onPressed,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Icon(icon, size: 30),
+            SizedBox(width: 20),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

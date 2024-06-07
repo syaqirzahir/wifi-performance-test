@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:untitled2/widgets/database_helper.dart';
+import 'package:untitled2/widgets/Iperf3Server.dart';
 
 class MapScreen extends StatefulWidget {
   @override
@@ -23,10 +25,12 @@ class _MapScreenState extends State<MapScreen> {
   bool _hasShownWarning = false; // Flag to track if the warning has been shown
   double? _distanceToUsm; // Variable to store the distance
   Polyline? _lineToUsm; // Polyline for the line to USM
+  List<Iperf3Server> _iperf3Servers = [];
 
   @override
   void initState() {
     super.initState();
+    _loadIperf3Servers();
     _startLocationUpdates();
   }
 
@@ -34,6 +38,14 @@ class _MapScreenState extends State<MapScreen> {
   void dispose() {
     _positionStreamSubscription?.cancel();
     super.dispose();
+  }
+
+  void _loadIperf3Servers() async {
+    final dbHelper = DatabaseHelper();
+    final servers = await dbHelper.getIperf3Servers();
+    setState(() {
+      _iperf3Servers = servers;
+    });
   }
 
   void _startLocationUpdates() async {
@@ -154,6 +166,13 @@ class _MapScreenState extends State<MapScreen> {
                 fillColor: Colors.yellow.withOpacity(0.2),
               ),
             },
+            markers: _iperf3Servers.map((server) {
+              return Marker(
+                markerId: MarkerId(server.id.toString()),
+                position: LatLng(server.latitude, server.longitude),
+                infoWindow: InfoWindow(title: server.name),
+              );
+            }).toSet(),
           ),
           Positioned(
             top: 10,
@@ -175,4 +194,6 @@ class _MapScreenState extends State<MapScreen> {
       ),
     );
   }
+
 }
+
