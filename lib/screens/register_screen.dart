@@ -13,16 +13,16 @@ class RegisterScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Register'),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            // Navigate back to the login screen
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => LoginScreen()),
-            );
-          },
-        ),
+    leading: IconButton(
+    icon: Icon(Icons.arrow_back),
+      onPressed: () {
+        // Navigate back to the login screen
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => LoginScreen()),
+        );
+      },
+    ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -34,12 +34,6 @@ class RegisterScreen extends StatelessWidget {
               controller: nameController,
               decoration: InputDecoration(
                 labelText: 'Name',
-                prefixIcon: Icon(Icons.person),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30.0),
-                ),
-                filled: true,
-                fillColor: Colors.grey[200]?.withOpacity(0.5),
               ),
             ),
             SizedBox(height: 20),
@@ -47,12 +41,6 @@ class RegisterScreen extends StatelessWidget {
               controller: emailController,
               decoration: InputDecoration(
                 labelText: 'Email',
-                prefixIcon: Icon(Icons.email),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30.0),
-                ),
-                filled: true,
-                fillColor: Colors.grey[200]?.withOpacity(0.5),
               ),
               keyboardType: TextInputType.emailAddress, // Set keyboard type to email
             ),
@@ -62,12 +50,6 @@ class RegisterScreen extends StatelessWidget {
               obscureText: true,
               decoration: InputDecoration(
                 labelText: 'Password',
-                prefixIcon: Icon(Icons.lock),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30.0),
-                ),
-                filled: true,
-                fillColor: Colors.grey[200]?.withOpacity(0.5),
               ),
             ),
             SizedBox(height: 20),
@@ -76,12 +58,6 @@ class RegisterScreen extends StatelessWidget {
               obscureText: true,
               decoration: InputDecoration(
                 labelText: 'Retype Password', // Label for retype password field
-                prefixIcon: Icon(Icons.lock),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30.0),
-                ),
-                filled: true,
-                fillColor: Colors.grey[200]?.withOpacity(0.5),
               ),
             ),
             SizedBox(height: 20),

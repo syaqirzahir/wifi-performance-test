@@ -2,7 +2,6 @@ import 'package:mysql1/mysql1.dart';
 import 'package:untitled2/screens/user_data.dart';
 import 'package:dbcrypt/dbcrypt.dart';
 import 'package:untitled2/widgets/Network_Test_Entry.dart';
-import 'package:untitled2/widgets/Iperf3Server.dart';
 
 class DatabaseHelper {
   static final DatabaseHelper _instance = DatabaseHelper._();
@@ -19,8 +18,6 @@ class DatabaseHelper {
     return _connection!;
   }
 
-
-
   Future<MySqlConnection> _connectToDatabase() async {
     final settings = ConnectionSettings(
       host: '192.168.0.110', // Replace with your MariaDB host
@@ -31,12 +28,6 @@ class DatabaseHelper {
     );
 
     return await MySqlConnection.connect(settings);
-  }
-
-  Future<List<Iperf3Server>> getIperf3Servers() async {
-    final conn = await connection;
-    final results = await conn.query('SELECT * FROM iperf3_servers');
-    return results.map((row) => Iperf3Server.fromMap(row.fields)).toList();
   }
 
   Future<String?> getPassword(String email) async {
@@ -150,8 +141,6 @@ class DatabaseHelper {
       ),
     ];
   }
-
-
 
 }
 

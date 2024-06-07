@@ -30,7 +30,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   children: [
                     Image.asset(
-                      'assets/logo.png',
+                      'assets/university_logo.png',
                       height: 150,
                     ),
                     SizedBox(height: 20),
@@ -49,12 +49,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 controller: emailController,
                 decoration: InputDecoration(
                   labelText: 'Email',
-                  prefixIcon: Icon(Icons.email),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30.0),
-                  ),
-                  filled: true,
-                  fillColor: Colors.grey[200]?.withOpacity(0.5),
                 ),
               ),
               SizedBox(height: 20),
@@ -63,24 +57,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 obscureText: true,
                 decoration: InputDecoration(
                   labelText: 'Password',
-                  prefixIcon: Icon(Icons.lock),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30.0),
-                  ),
-                  filled: true,
-                  fillColor: Colors.grey[200]?.withOpacity(0.5),
                 ),
               ),
               SizedBox(height: 20),
               ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.yellow.shade700, // Change primary to backgroundColor
-                  foregroundColor: Colors.black, // Change onPrimary to foregroundColor
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30.0),
-                  ),
-                  padding: EdgeInsets.symmetric(vertical: 15.0),
-                ),
                 onPressed: () async {
                   print('Login button pressed'); // Add this print statement
                   String email = emailController.text;
@@ -128,18 +108,11 @@ class _LoginScreenState extends State<LoginScreen> {
                     );
                   }
                 },
-                child: Text('Login', style: TextStyle(fontSize: 16)),
+                child: Text('Login'),
               ),
+
               SizedBox(height: 20),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.yellow.shade600, // Change primary to backgroundColor
-                  foregroundColor: Colors.black, // Change onPrimary to foregroundColor
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30.0),
-                  ),
-                  padding: EdgeInsets.symmetric(vertical: 15.0),
-                ),
+              TextButton(
                 onPressed: () {
                   // Add login log for guest user
                   addLoginLog(
@@ -156,32 +129,26 @@ class _LoginScreenState extends State<LoginScreen> {
                     '/user_home',
                   );
                 },
-                child: Text('Continue as Guest', style: TextStyle(fontSize: 16)),
+                child: Text('Continue as Guest'),
               ),
               SizedBox(height: 20),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.yellow.shade500, // Change primary to backgroundColor
-                  foregroundColor: Colors.black, // Change onPrimary to foregroundColor
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30.0),
-                  ),
-                  padding: EdgeInsets.symmetric(vertical: 15.0),
-                ),
+              TextButton(
                 onPressed: () {
                   Navigator.pushReplacementNamed(
                     context,
                     '/register_screen',
                   );
                 },
-                child: Text('Sign Up Now', style: TextStyle(fontSize: 16)),
+                child: Text('Sign Up Now'),
               ),
             ],
           ),
         ),
       ),
+
     );
-  }
+
+    }
 
   Future<void> addLoginLog(String eventType, String eventDescription) async {
     // Record login process in the logs database
@@ -190,4 +157,5 @@ class _LoginScreenState extends State<LoginScreen> {
       eventDescription,
     );
   }
+
 }

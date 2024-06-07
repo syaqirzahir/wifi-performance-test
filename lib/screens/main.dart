@@ -34,22 +34,7 @@ class MyApp extends StatelessWidget {
         // Add the route for EditProfileScreen
       },
       theme: ThemeData(
-        primaryColor: Colors.yellow, // Define primary color here
-        scaffoldBackgroundColor: Color(0xFFFFF9C4), // Dark Grayish Black
-        // Define scaffold background color here
-        appBarTheme: AppBarTheme(
-          color: Colors.yellow, // Define AppBar color here
-          iconTheme: IconThemeData(color: Colors.black), // AppBar icons color
-          titleTextStyle: TextStyle(
-            color: Colors.black,
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        buttonTheme: ButtonThemeData(
-          buttonColor: Colors.yellow, // Define button color here
-          textTheme: ButtonTextTheme.primary, // Button text color theme
-        ),
+        primaryColor: Colors.redAccent, // Define primary color here
       ),
     );
   }
