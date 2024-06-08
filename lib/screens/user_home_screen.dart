@@ -8,6 +8,7 @@ import 'network_performance_test_screen.dart';
 import 'package:untitled2/widgets/database_helper.dart';
 import 'wifi_list_screen.dart';
 import 'package:untitled2/widgets/Network_Test_Entry.dart';
+import 'package:untitled2/widgets/project.dart';
 import 'map_screen.dart';
 import 'device_list_screen.dart';
 
@@ -55,15 +56,19 @@ class _UserHomeScreenState extends State<UserHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return HomeScreen(userLocation: _userLocation);
+    // Define a projectId for demonstration
+    final int projectId = 1; // Replace with the actual project ID
+
+    return HomeScreen(userLocation: _userLocation, projectId: projectId);
   }
 }
 
 class HomeScreen extends StatelessWidget {
   final String userLocation;
+  final int projectId; // Add this line to include projectId
   final DatabaseHelper dbHelper = DatabaseHelper();
 
-  HomeScreen({required this.userLocation});
+  HomeScreen({required this.userLocation, required this.projectId}); // Update constructor
 
   @override
   Widget build(BuildContext context) {
@@ -252,7 +257,7 @@ class HomeScreen extends StatelessWidget {
                         () => Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => WiFiTestForm(),
+                        builder: (context) => CreateProjectScreen(),
                       ),
                     ),
                   ),

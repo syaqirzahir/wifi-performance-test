@@ -6,7 +6,7 @@ import 'user_data.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'network_performance_test_screen.dart';
 import 'package:untitled2/widgets/database_helper.dart';
-import 'wifi_list_screen.dart';
+import 'wifi_list_screen.dart'; // Ensure this import is correct
 
 class GuestHomeScreen extends StatefulWidget {
   @override
@@ -53,15 +53,19 @@ class _GuestHomeScreenState extends State<GuestHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return HomeScreen(userLocation: _userLocation);
+    // Define a projectId for demonstration
+    final int projectId = 1; // Replace with the actual project ID
+
+    return HomeScreen(userLocation: _userLocation, projectId: projectId);
   }
 }
 
 class HomeScreen extends StatelessWidget {
   final String userLocation;
+  final int projectId;
   final DatabaseHelper dbHelper = DatabaseHelper();
 
-  HomeScreen({required this.userLocation});
+  HomeScreen({required this.userLocation, required this.projectId});
 
   @override
   Widget build(BuildContext context) {
@@ -91,11 +95,7 @@ class HomeScreen extends StatelessWidget {
                           constraints.maxHeight), // Set dynamic preferred size
                       child: Container(
                         color: Colors.blue,
-                        width:
-                        MediaQuery
-                            .of(context)
-                            .size
-                            .width, // Match the width of the drawer
+                        width: MediaQuery.of(context).size.width, // Match the width of the drawer
                         padding: EdgeInsets.fromLTRB(
                             16, 30, 16, 20), // Add top padding
                         child: Column(
@@ -126,16 +126,14 @@ class HomeScreen extends StatelessWidget {
                 // Edit Profile item
                 Container(
                   decoration: BoxDecoration(
-                    border:
-                    Border.all(color: Colors.black), // Add border decoration
+                    border: Border.all(color: Colors.black), // Add border decoration
                   ),
                   child: ListTile(
                     title: Text(
                       'Edit Profile',
                       style: TextStyle(
                         color: Colors.black,
-                        fontWeight:
-                        FontWeight.bold, // Set font weight to bold
+                        fontWeight: FontWeight.bold, // Set font weight to bold
                       ),
                     ),
                     onTap: () {
@@ -147,8 +145,7 @@ class HomeScreen extends StatelessWidget {
                 // Log out item
                 Container(
                   decoration: BoxDecoration(
-                    border:
-                    Border.all(color: Colors.black), // Add border decoration
+                    border: Border.all(color: Colors.black), // Add border decoration
                   ),
                   child: ListTile(
                     title: Text(
@@ -173,8 +170,7 @@ class HomeScreen extends StatelessWidget {
           children: <Widget>[
             // Button to conduct network performance test
             Container(
-              margin:
-              EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+              margin: EdgeInsets.symmetric(vertical: 20, horizontal: 16),
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.black),
               ),
@@ -187,8 +183,7 @@ class HomeScreen extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) =>
-                          Iperf3TestScreen(),
+                      builder: (context) => Iperf3TestScreen(),
                     ),
                   );
                 },
@@ -202,7 +197,7 @@ class HomeScreen extends StatelessWidget {
               ),
               child: ListTile(
                 title: Text(
-                  'View Wi-Fi Networks',
+                  'View Test Results',
                   style: TextStyle(color: Colors.black),
                 ),
                 onTap: () {

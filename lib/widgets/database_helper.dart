@@ -1,5 +1,6 @@
 import 'package:mysql1/mysql1.dart';
 import 'package:dbcrypt/dbcrypt.dart';
+import 'project.dart';
 
 class DatabaseHelper {
   static final DatabaseHelper _instance = DatabaseHelper._();
@@ -126,6 +127,42 @@ class DatabaseHelper {
     ''', [eventType, eventDescription]);
   }
 
+  Future<void> addProject(Project project) async {
+    final conn = await connection;
+    await conn.query('''
+      INSERT INTO projects (project_name, user_id)
+      VALUES (?, ?)
+    ''', [project.projectName, project.userId]);
+  }
+
+  Future<List<Project>> fetchProjects(int userId) async {
+    final conn = await connection;
+    final results = await conn.query('SELECT * FROM projects WHERE user_id = ?', [userId]);
+    return results.map((result) => Project.fromMap(result.fields)).toList();
+  }
+
+  Future<void> addWifiTestResult(WifiTestResult result) async {
+    final conn = await connection;
+    await conn.query('''
+      INSERT INTO wifi_test_results (
+        user_id, test_name, test_timestamp, test_type, building_name, floor, ap_name, wifi_ssid, throughput, transfer, jitter, project_id
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ''', [
+      result.userId, result.testName, result.testTimestamp.toIso8601String(), result.testType,
+      result.buildingName, result.floor, result.apName, result.wifiSsid, result.throughput,
+      result.transfer, result.jitter, result.projectId
+    ]);
+  }
+
+  Future<List<Map<String, dynamic>>> fetchWifiTestResultsByUserId(int userId) async {
+    final conn = await connection;
+    final results = await conn.query(
+      'SELECT * FROM wifi_test_results WHERE user_id = ?',
+      [userId],
+    );
+    return results.map((result) => result.fields).toList();
+  }
+
   Future<void> insertTestResult({
     required int userId,
     required String testType,
@@ -145,27 +182,6 @@ class DatabaseHelper {
     final results = await conn.query('SELECT * FROM test_results');
     return results.map((result) => result.fields).toList();
   }
-
-  Future<void> addWifiTestResult(WifiTestResult result) async {
-    final conn = await connection;
-    await conn.query('''
-      INSERT INTO wifi_test_results (
-        user_id, test_name, test_timestamp, test_type, building_name, floor, ap_name, wifi_ssid, throughput, transfer, jitter
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    ''', [
-      result.userId, result.testName, result.testTimestamp.toIso8601String(), result.testType,
-      result.buildingName, result.floor, result.apName, result.wifiSsid, result.throughput,
-      result.transfer, result.jitter
-    ]);
-  }
-
-  Future<List<Map<String, dynamic>>> fetchWifiTestResults() async {
-    final conn = await connection;
-    final results = await conn.query('SELECT * FROM wifi_test_results');
-    return results.map((result) => result.fields).toList();
-  }
-
-  getTestHistory() {}
 }
 
 class WifiTestResult {
@@ -180,6 +196,7 @@ class WifiTestResult {
   double throughput;
   double transfer;
   double jitter;
+  int projectId;
 
   WifiTestResult({
     required this.userId,
@@ -193,6 +210,7 @@ class WifiTestResult {
     required this.throughput,
     required this.transfer,
     required this.jitter,
+    required this.projectId,
   });
 
   Map<String, dynamic> toMap() {
@@ -208,6 +226,25 @@ class WifiTestResult {
       'throughput': throughput,
       'transfer': transfer,
       'jitter': jitter,
+      'project_id': projectId,
     };
   }
+
+  factory WifiTestResult.fromMap(Map<String, dynamic> map) {
+    return WifiTestResult(
+      userId: map['user_id'],
+      testName: map['test_name'],
+      testTimestamp: DateTime.parse(map['test_timestamp']),
+      testType: map['test_type'],
+      buildingName: map['building_name'],
+      floor: map['floor'],
+      apName: map['ap_name'],
+      wifiSsid: map['wifi_ssid'],
+      throughput: map['throughput'],
+      transfer: map['transfer'],
+      jitter: map['jitter'],
+      projectId: map['project_id'],
+    );
+  }
 }
+

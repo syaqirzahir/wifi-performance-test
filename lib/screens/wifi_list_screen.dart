@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:untitled2/widgets/database_helper.dart';
-import 'package:intl/intl.dart';
 import 'package:untitled2/screens/user_provider.dart';
 
 class TestResultsPage extends StatefulWidget {
@@ -10,144 +10,161 @@ class TestResultsPage extends StatefulWidget {
 }
 
 class _TestResultsPageState extends State<TestResultsPage> {
-  late Future<Map<String, List<Map<String, dynamic>>>> _testResultsFuture;
-  String selectedTestType = 'TCP';
+  late Future<List<Map<String, dynamic>>> _wifiTestResultsFuture;
+  late int userId;
 
   @override
   void initState() {
     super.initState();
-    _testResultsFuture = fetchTestResults();
+    _fetchUserId();
   }
 
-  Future<Map<String, List<Map<String, dynamic>>>> fetchTestResults() async {
+  Future<void> _fetchUserId() async {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
-    final results = await DatabaseHelper().fetchTestResults();
-    final Map<String, List<Map<String, dynamic>>> segregatedResults = {
-      'TCP': [],
-      'UDP': [],
-    };
+    userId = userProvider.userId!;
+    setState(() {
+      _wifiTestResultsFuture = _fetchWifiTestResultsByUserId(userId);
+    });
+  }
 
-    for (var result in results) {
-      if (result['user_id'] == userProvider.userId) {
-        if (result['test_type'] == 'TCP') {
-          segregatedResults['TCP']!.add(result);
-        } else if (result['test_type'] == 'UDP') {
-          segregatedResults['UDP']!.add(result);
-        }
-      }
-    }
-
-    return segregatedResults;
+  Future<List<Map<String, dynamic>>> _fetchWifiTestResultsByUserId(int userId) async {
+    return await DatabaseHelper().fetchWifiTestResultsByUserId(userId);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Test Results'),
+        title: Text('WiFi Test Results'),
       ),
-      body: FutureBuilder<Map<String, List<Map<String, dynamic>>>>(
-        future: _testResultsFuture,
+      body: FutureBuilder<List<Map<String, dynamic>>>(
+        future: _wifiTestResultsFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (!snapshot.hasData || (snapshot.data!['TCP']!.isEmpty && snapshot.data!['UDP']!.isEmpty)) {
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return Center(child: Text('No test results found'));
           } else {
             final results = snapshot.data!;
-            final tcpResults = results['TCP']!;
-            final udpResults = results['UDP']!;
+            final groupedResults = groupTestResultsByProjectId(results);
 
-            return Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    ElevatedButton(
-                      onPressed: () {
-                        setState(() {
-                          selectedTestType = 'TCP';
-                        });
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: selectedTestType == 'TCP' ? Colors.teal : Colors.grey,
-                      ),
-                      child: Text('Stability Test Results'),
-                    ),
-                    SizedBox(width: 10),
-                    ElevatedButton(
-                      onPressed: () {
-                        setState(() {
-                          selectedTestType = 'UDP';
-                        });
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: selectedTestType == 'UDP' ? Colors.teal : Colors.grey,
-                      ),
-                      child: Text('UDP Test Results'),
-                    ),
-                  ],
-                ),
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: selectedTestType == 'TCP' ? tcpResults.length : udpResults.length,
-                    itemBuilder: (context, index) {
-                      final result = selectedTestType == 'TCP' ? tcpResults[index] : udpResults[index];
-                      final timestampString = result['test_timestamp'].toString();
+            return ListView.builder(
+              itemCount: groupedResults.length,
+              itemBuilder: (context, index) {
+                final projectId = groupedResults.keys.toList()[index];
+                final testResultsForProject = groupedResults[projectId]!;
 
-                      // Ensure the timestamp string is properly parsed to DateTime
-                      DateTime? timestamp;
-                      try {
-                        timestamp = DateTime.parse(timestampString);
-                      } catch (e) {
-                        print('Error parsing timestamp: $e');
-                        return Card(
-                          margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          child: ListTile(
-                            title: Text('Invalid date format for Test ID: ${result['id']}'),
-                          ),
-                        );
-                      }
-
-                      final formattedDate = DateFormat('yyyy-MM-dd').format(timestamp);
-                      final formattedTime = DateFormat('HH:mm:ss').format(timestamp);
-
-                      return Card(
-                        margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        child: ListTile(
-                          title: Text(
-                            'Test ID: ${result['id']}',
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              SizedBox(height: 8),
-                              Text('User ID: ${result['user_id']}'),
-                              Text('Type: ${result['test_type']}'),
-                              Text('Date: $formattedDate'),
-                              Text('Time: $formattedTime'),
-                              SizedBox(height: 4),
-                              Divider(),
-                              SizedBox(height: 4),
-                              Text('Throughput: ${result['throughput']} Mbits/sec'),
-                              Text('Transfer: ${result['transfer']} MBytes'),
-                              if (result['test_type'] == 'UDP')
-                                Text('Jitter: ${result['jitter']} ms'),
-                            ],
-                          ),
+                return GestureDetector(
+                  onTap: () {
+                    // Navigate to a detailed view of the selected project
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ProjectDetailsPage(
+                          projectId: projectId,
+                          testResults: testResultsForProject,
                         ),
-                      );
-                    },
+                      ),
+                    );
+                  },
+                  child: Card(
+                    margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: ListTile(
+                      title: Text(
+                        'Project ID: $projectId',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      subtitle: Text('${testResultsForProject.length} test(s)'),
+                    ),
                   ),
-                ),
-              ],
+                );
+              },
             );
           }
         },
       ),
     );
   }
+
+  Map<int?, List<Map<String, dynamic>>> groupTestResultsByProjectId(List<Map<String, dynamic>> results) {
+    final groupedResults = <int?, List<Map<String, dynamic>>>{};
+
+    for (final result in results) {
+      final projectId = result['project_id'];
+
+      if (!groupedResults.containsKey(projectId)) {
+        groupedResults[projectId] = [];
+      }
+
+      groupedResults[projectId]?.add(result);
+    }
+
+    return groupedResults;
+  }
 }
+
+class ProjectDetailsPage extends StatelessWidget {
+  final int? projectId;
+  final List<Map<String, dynamic>> testResults;
+
+  const ProjectDetailsPage({
+    required this.projectId,
+    required this.testResults,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Project Details'),
+      ),
+      body: ListView.builder(
+        itemCount: testResults.length,
+        itemBuilder: (context, index) {
+          final result = testResults[index];
+          final timestampString = result['test_timestamp'].toString();
+
+          DateTime? timestamp;
+          try {
+            timestamp = DateTime.parse(timestampString);
+          } catch (e) {
+            print('Error parsing timestamp: $e');
+          }
+
+          final formattedDate = timestamp != null ? DateFormat('yyyy-MM-dd').format(timestamp!) : 'Invalid Date';
+          final formattedTime = timestamp != null ? DateFormat('HH:mm:ss').format(timestamp!) : 'Invalid Time';
+
+          return Card(
+            margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: ListTile(
+              title: Text(
+                'Test ID: ${result['id']}',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('User ID: ${result['user_id']}'),
+                  Text('Test Name: ${result['test_name']}'),
+                  Text('Test Type: ${result['test_type']}'),
+                  Text('Building Name: ${result['building_name']}'),
+                  Text('Floor: ${result['floor']}'),
+                  Text('AP Name: ${result['ap_name']}'),
+                  Text('WiFi SSID: ${result['wifi_ssid']}'),
+                  Text('Throughput: ${result['throughput']} Mbits/sec'),
+                  Text('Transfer: ${result['transfer']} MBytes'),
+                  if (result['test_type'] == 'UDP') Text('Jitter: ${result['jitter']} ms'),
+                  Text('Date: $formattedDate'),
+                  Text('Time: $formattedTime'),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+ 
